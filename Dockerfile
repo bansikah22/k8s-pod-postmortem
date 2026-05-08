@@ -3,7 +3,7 @@ FROM golang:1.23-alpine AS builder
 
 WORKDIR /app
 
-
+# Install dependencies first for better caching
 RUN apk add --no-cache git ca-certificates tzdata
 
 COPY go.mod go.sum ./
@@ -11,13 +11,15 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /postmortem ./cmd/postmortem
+# Build with TARGETOS and TARGETARCH for multi-platform support
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags="-w -s" -o /postmortem ./cmd/postmortem
 
 FROM alpine:3.19
 
-RUN apk add --no-cache ca-certificates tzdata
-
-RUN addgroup -g 1000 postmortem && \
+RUN apk add --no-cache ca-certificates tzdata && \
+    addgroup -g 1000 postmortem && \
     adduser -u 1000 -G postmortem -s /bin/sh -D postmortem
 
 WORKDIR /app
