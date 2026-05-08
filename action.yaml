@@ -42,30 +42,66 @@ inputs:
 outputs:
   failure-type:
     description: 'Classification of the failure type'
+    value: ${{ steps.postmortem.outputs.failure-type }}
   failure-reason:
     description: 'Reason for the failure'
+    value: ${{ steps.postmortem.outputs.failure-reason }}
   namespace:
     description: 'Kubernetes namespace of the pod'
+    value: ${{ steps.postmortem.outputs.namespace }}
   pod-name:
     description: 'Name of the pod'
+    value: ${{ steps.postmortem.outputs.pod-name }}
 
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  args:
-    - '--log-tail-lines'
-    - ${{ inputs.log-tail-lines }}
-    - '--include-node-info'
-    - ${{ inputs.include-node-info }}
-    - '--redact-secrets'
-    - ${{ inputs.redact-secrets }}
-    - '--output-format'
-    - ${{ inputs.output-format }}
-    - '--namespace'
-    - ${{ inputs.namespace }}
-    - '--pod-name'
-    - ${{ inputs.pod-name }}
-    - '--debug'
-    - ${{ inputs.debug }}
-    - '--timeout'
-    - ${{ inputs.timeout }}
+  using: 'composite'
+  steps:
+    - name: Download Precompiled Binary
+      shell: bash
+      run: |
+        # Get the action version from the reference
+        ACTION_VERSION="${{ github.action_ref }}"
+        
+        # Remove 'v' prefix if present
+        VERSION="${ACTION_VERSION#v}"
+        
+        # As fallback, use the latest version
+        if [[ -z "$VERSION" ]] || [[ "$VERSION" == "master" ]] || [[ "$VERSION" == "main" ]]; then
+          VERSION="0.1.0"
+          echo "No version detected, using default: $VERSION"
+        else 
+          echo "Using version: $VERSION"
+        fi
+        
+        echo "Downloading from: https://github.com/bansikah22/k8s-pod-postmortem/releases/download/v${VERSION}/postmortem"
+        
+        # Download with error handling
+        if ! curl -L -f -o postmortem \
+          "https://github.com/bansikah22/k8s-pod-postmortem/releases/download/v${VERSION}/postmortem"; then
+          echo "Download failed! Check if release exists at: https://github.com/bansikah22/k8s-pod-postmortem/releases/tag/v${VERSION}"
+          exit 1
+        fi
+        
+        chmod +x postmortem
+        
+        # Debug info
+        ls -la postmortem
+        file postmortem
+    
+    - name: Run Post-Mortem
+      id: postmortem
+      shell: bash
+      run: |
+        ./postmortem \
+          --log-tail-lines="${{ inputs.log-tail-lines }}" \
+          --include-node-info="${{ inputs.include-node-info }}" \
+          --redact-secrets="${{ inputs.redact-secrets }}" \
+          --output-format="${{ inputs.output-format }}" \
+          --namespace="${{ inputs.namespace }}" \
+          --pod-name="${{ inputs.pod-name }}" \
+          --debug="${{ inputs.debug }}" \
+          --timeout="${{ inputs.timeout }}"
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_EVENT_PATH: ${{ github.event_path }}
