@@ -37,8 +37,11 @@ func signalAwareContext(parent context.Context) (context.Context, context.Cancel
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		<-sigChan
-		cancel()
+		select {
+		case <-sigChan:
+			cancel()
+		case <-ctx.Done():
+		}
 	}()
 
 	return ctx, cancel

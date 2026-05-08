@@ -49,7 +49,7 @@ func (r *Reporter) writeSummary(sb *strings.Builder, diagnostics *types.Diagnost
 	sb.WriteString("## Pod Information\n\n")
 	sb.WriteString(fmt.Sprintf("**Namespace:** `%s`\n\n", diagnostics.Namespace))
 	sb.WriteString(fmt.Sprintf("**Pod:** `%s`\n\n", diagnostics.PodName))
-	
+
 	if diagnostics.Pod != nil {
 		sb.WriteString(fmt.Sprintf("**Node:** `%s`\n\n", diagnostics.Pod.Spec.NodeName))
 		sb.WriteString(fmt.Sprintf("**Created:** %s\n\n", diagnostics.Pod.CreationTimestamp.Format(time.RFC3339)))
@@ -59,7 +59,7 @@ func (r *Reporter) writeSummary(sb *strings.Builder, diagnostics *types.Diagnost
 
 func (r *Reporter) writeContainerStatus(sb *strings.Builder, diagnostics *types.Diagnostics) {
 	sb.WriteString("## Container Status\n\n")
-	
+
 	if len(diagnostics.ContainerStats) == 0 {
 		sb.WriteString("*No container status information available*\n\n")
 		sb.WriteString("---\n\n")
@@ -68,7 +68,7 @@ func (r *Reporter) writeContainerStatus(sb *strings.Builder, diagnostics *types.
 
 	sb.WriteString("| Container | State | Reason | Exit Code | Restarts |\n")
 	sb.WriteString("|-----------|-------|--------|-----------|----------|\n")
-	
+
 	for _, stat := range diagnostics.ContainerStats {
 		exitCode := "-"
 		if stat.ExitCode != 0 {
@@ -86,7 +86,7 @@ func (r *Reporter) writeContainerStatus(sb *strings.Builder, diagnostics *types.
 
 func (r *Reporter) writeEventsTimeline(sb *strings.Builder, diagnostics *types.Diagnostics) {
 	sb.WriteString("## Events Timeline\n\n")
-	
+
 	if len(diagnostics.Events) == 0 {
 		sb.WriteString("*No events found*\n\n")
 		sb.WriteString("---\n\n")
@@ -101,9 +101,13 @@ func (r *Reporter) writeEventsTimeline(sb *strings.Builder, diagnostics *types.D
 		if event.Type == "Warning" || event.Type == "Error" {
 			eventType = fmt.Sprintf("**%s**", event.Type)
 		}
-		
+
+		timestamp := "unknown"
+		if !event.LastTimestamp.IsZero() {
+			timestamp = event.LastTimestamp.Format(time.RFC3339)
+		}
 		sb.WriteString(fmt.Sprintf("- %s `%s` at %s\n",
-			eventType, event.Reason, event.LastTimestamp.Format(time.RFC3339)))
+			eventType, event.Reason, timestamp))
 		if event.Message != "" {
 			sb.WriteString(fmt.Sprintf("  > %s\n", event.Message))
 		}
@@ -113,7 +117,7 @@ func (r *Reporter) writeEventsTimeline(sb *strings.Builder, diagnostics *types.D
 
 func (r *Reporter) writePreviousLogs(sb *strings.Builder, diagnostics *types.Diagnostics) {
 	sb.WriteString("## Previous Container Logs\n\n")
-	
+
 	if len(diagnostics.PreviousLogs) == 0 {
 		sb.WriteString("*No previous logs available*\n\n")
 		sb.WriteString("---\n\n")
@@ -122,12 +126,12 @@ func (r *Reporter) writePreviousLogs(sb *strings.Builder, diagnostics *types.Dia
 
 	for container, logs := range diagnostics.PreviousLogs {
 		sb.WriteString(fmt.Sprintf("### Container: `%s`\n\n", container))
-		
+
 		if logs == "" {
 			sb.WriteString("*No logs captured*\n\n")
 			continue
 		}
-		
+
 		// Truncate logs if too long
 		maxLogLines := 50
 		lines := strings.Split(logs, "\n")
@@ -135,7 +139,7 @@ func (r *Reporter) writePreviousLogs(sb *strings.Builder, diagnostics *types.Dia
 			sb.WriteString(fmt.Sprintf("*Showing last %d lines (truncated)*\n\n", maxLogLines))
 			lines = lines[len(lines)-maxLogLines:]
 		}
-		
+
 		sb.WriteString("```\n")
 		for _, line := range lines {
 			sb.WriteString(line + "\n")
@@ -147,7 +151,7 @@ func (r *Reporter) writePreviousLogs(sb *strings.Builder, diagnostics *types.Dia
 
 func (r *Reporter) writeRecommendations(sb *strings.Builder, classification types.Classification) {
 	sb.WriteString("## Recommendations\n\n")
-	
+
 	if len(classification.Recommendations) == 0 {
 		sb.WriteString("*No specific recommendations available*\n\n")
 		sb.WriteString("---\n\n")

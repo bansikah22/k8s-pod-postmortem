@@ -60,8 +60,8 @@ func TestRedactor_Redact(t *testing.T) {
 	r := NewRedactor()
 
 	diagnostics := &types.Diagnostics{
-		Namespace:    "default",
-		PodName:      "test-pod",
+		Namespace: "default",
+		PodName:   "test-pod",
 		PreviousLogs: map[string]string{
 			"container": "AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\npassword=secret123",
 		},

@@ -34,7 +34,7 @@ func (a *Analyzer) initRules() {
 			matchFunc: func(d *types.Diagnostics) bool {
 				return hasContainerReason(d, "OOMKilled")
 			},
-			classify: func(d *types.Diagnostics) types.Classification {
+			classify: func(_ *types.Diagnostics) types.Classification {
 				return types.Classification{
 					Type:       types.MemoryExhaustion,
 					Reason:     "OOMKilled",
@@ -54,7 +54,7 @@ func (a *Analyzer) initRules() {
 			matchFunc: func(d *types.Diagnostics) bool {
 				return hasContainerReason(d, "Evicted")
 			},
-			classify: func(d *types.Diagnostics) types.Classification {
+			classify: func(_ *types.Diagnostics) types.Classification {
 				return types.Classification{
 					Type:       types.NodePressure,
 					Reason:     "Evicted",
@@ -74,7 +74,7 @@ func (a *Analyzer) initRules() {
 			matchFunc: func(d *types.Diagnostics) bool {
 				return hasEventReason(d, "FailedScheduling")
 			},
-			classify: func(d *types.Diagnostics) types.Classification {
+			classify: func(_ *types.Diagnostics) types.Classification {
 				return types.Classification{
 					Type:       types.CapacityShortage,
 					Reason:     "FailedScheduling",
@@ -95,7 +95,7 @@ func (a *Analyzer) initRules() {
 			matchFunc: func(d *types.Diagnostics) bool {
 				return hasContainerReason(d, "ImagePullBackOff") || hasContainerReason(d, "ErrImagePull")
 			},
-			classify: func(d *types.Diagnostics) types.Classification {
+			classify: func(_ *types.Diagnostics) types.Classification {
 				return types.Classification{
 					Type:       types.ImageFailure,
 					Reason:     "ImagePullBackOff",
@@ -116,7 +116,7 @@ func (a *Analyzer) initRules() {
 			matchFunc: func(d *types.Diagnostics) bool {
 				return hasContainerReason(d, "CrashLoopBackOff")
 			},
-			classify: func(d *types.Diagnostics) types.Classification {
+			classify: func(_ *types.Diagnostics) types.Classification {
 				return types.Classification{
 					Type:       types.ApplicationCrash,
 					Reason:     "CrashLoopBackOff",
@@ -137,7 +137,7 @@ func (a *Analyzer) initRules() {
 			matchFunc: func(d *types.Diagnostics) bool {
 				return hasEventReason(d, "Preempted")
 			},
-			classify: func(d *types.Diagnostics) types.Classification {
+			classify: func(_ *types.Diagnostics) types.Classification {
 				return types.Classification{
 					Type:       types.Preemption,
 					Reason:     "Preempted",
@@ -157,7 +157,7 @@ func (a *Analyzer) initRules() {
 			matchFunc: func(d *types.Diagnostics) bool {
 				return hasEventReason(d, "NodeNotReady") || hasEventReason(d, "NodeLost")
 			},
-			classify: func(d *types.Diagnostics) types.Classification {
+			classify: func(_ *types.Diagnostics) types.Classification {
 				return types.Classification{
 					Type:       types.NodeFailure,
 					Reason:     "NodeNotReady",
@@ -178,7 +178,7 @@ func (a *Analyzer) initRules() {
 			matchFunc: func(d *types.Diagnostics) bool {
 				return hasEventReason(d, "DeadlineExceeded")
 			},
-			classify: func(d *types.Diagnostics) types.Classification {
+			classify: func(_ *types.Diagnostics) types.Classification {
 				return types.Classification{
 					Type:       types.Timeout,
 					Reason:     "DeadlineExceeded",
@@ -198,7 +198,7 @@ func (a *Analyzer) initRules() {
 			matchFunc: func(d *types.Diagnostics) bool {
 				return hasNetworkFailure(d)
 			},
-			classify: func(d *types.Diagnostics) types.Classification {
+			classify: func(_ *types.Diagnostics) types.Classification {
 				return types.Classification{
 					Type:       types.NetworkFailure,
 					Reason:     "NetworkPluginError",

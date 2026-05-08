@@ -4,6 +4,7 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -36,7 +37,7 @@ func NewClient() (*Client, error) {
 }
 
 // DiscoverPodInfo discovers namespace and pod name if not provided
-func (c *Client) DiscoverPodInfo(ctx context.Context, namespace, podName string) (string, string, error) {
+func (c *Client) DiscoverPodInfo(_ context.Context, namespace, podName string) (string, string, error) {
 	// Use provided values if both are set
 	if namespace != "" && podName != "" {
 		return namespace, podName, nil
@@ -165,6 +166,9 @@ func (c *Client) GetPreviousLogs(ctx context.Context, namespace, podName, contai
 			data = append(data, buf[:n]...)
 		}
 		if err != nil {
+			if err != io.EOF {
+				return "", fmt.Errorf("error reading log stream: %w", err)
+			}
 			break
 		}
 	}
@@ -223,8 +227,4 @@ func extractContainerStats(pod *corev1.Pod) []types.ContainerStats {
 	}
 
 	return stats
-}
-
-func boolPtr(b bool) *bool {
-	return &b
 }

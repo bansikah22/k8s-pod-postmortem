@@ -10,16 +10,16 @@ import (
 
 const (
 	// GitHub environment variables
-	githubOutputFile    = "GITHUB_OUTPUT"
+	githubOutputFile      = "GITHUB_OUTPUT"
 	githubStepSummaryFile = "GITHUB_STEP_SUMMARY"
-	githubWorkspace     = "GITHUB_WORKSPACE"
+	githubWorkspace       = "GITHUB_WORKSPACE"
 )
 
 // Client handles GitHub Actions integration
 type Client struct {
-	outputFile    string
-	summaryFile   string
-	workspace     string
+	outputFile  string
+	summaryFile string
+	workspace   string
 }
 
 // NewClient creates a new GitHub client

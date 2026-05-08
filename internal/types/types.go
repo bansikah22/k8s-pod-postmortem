@@ -51,21 +51,21 @@ type Classification struct {
 type FailureType string
 
 const (
-	MemoryExhaustion  FailureType = "MEMORY_EXHAUSTION"
-	NodePressure      FailureType = "NODE_PRESSURE"
-	CapacityShortage  FailureType = "CAPACITY_SHORTAGE"
-	ImageFailure      FailureType = "IMAGE_FAILURE"
-	ApplicationCrash  FailureType = "APPLICATION_CRASH"
-	Preemption        FailureType = "PREEMPTION"
-	NodeFailure       FailureType = "NODE_FAILURE"
-	Timeout           FailureType = "TIMEOUT"
-	NetworkFailure    FailureType = "NETWORK_FAILURE"
-	Unknown           FailureType = "UNKNOWN"
+	MemoryExhaustion FailureType = "MEMORY_EXHAUSTION"
+	NodePressure     FailureType = "NODE_PRESSURE"
+	CapacityShortage FailureType = "CAPACITY_SHORTAGE"
+	ImageFailure     FailureType = "IMAGE_FAILURE"
+	ApplicationCrash FailureType = "APPLICATION_CRASH"
+	Preemption       FailureType = "PREEMPTION"
+	NodeFailure      FailureType = "NODE_FAILURE"
+	Timeout          FailureType = "TIMEOUT"
+	NetworkFailure   FailureType = "NETWORK_FAILURE"
+	Unknown          FailureType = "UNKNOWN"
 )
 
 // Config holds the action configuration
 type Config struct {
-	LogTailLines   int
+	LogTailLines    int
 	IncludeNodeInfo bool
 	RedactSecrets   bool
 	OutputFormat    string
