@@ -102,7 +102,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha
+            type=sha,format=long
       - uses: docker/build-push-action@v5
         with:
           context: .
@@ -112,14 +112,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
-      - uses: anchore/sbom-action@v0
+      - name: Generate SBOM
         if: github.event_name != 'pull_request'
+        uses: anchore/sbom-action@v0
         with:
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
           format: spdx-json
           output-file: sbom.spdx.json
+        continue-on-error: true
       - uses: actions/upload-artifact@v4
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && hashFiles('sbom.spdx.json') != ''
         with:
           name: sbom
           path: sbom.spdx.json
