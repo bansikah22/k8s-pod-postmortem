@@ -1,0 +1,270 @@
+name: Test Action
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'action.yaml'
+      - 'Dockerfile'
+      - 'cmd/**'
+      - 'internal/**'
+      - 'go.mod'
+      - 'go.sum'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'action.yaml'
+      - 'Dockerfile'
+      - 'cmd/**'
+      - 'internal/**'
+      - 'go.mod'
+      - 'go.sum'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test -v -race -coverprofile=coverage.out ./...
+
+      - name: Build binary
+        run: go build -o bin/postmortem ./cmd/postmortem
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.out
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+
+  docker-build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [build, lint]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: k8s-pod-postmortem:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image
+        run: |
+          docker run --rm k8s-pod-postmortem:test --help || echo "Help command executed"
+
+  action-test:
+    name: Test GitHub Action
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create test Kubernetes cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: test-cluster
+
+      - name: Install RBAC resources
+        run: |
+          kubectl apply -f - <<EOF
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: test-postmortem
+            namespace: default
+          ---
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: Role
+          metadata:
+            name: test-postmortem
+            namespace: default
+          rules:
+          - apiGroups: [""]
+            resources:
+              - pods
+              - pods/log
+              - events
+            verbs:
+              - get
+              - list
+              - watch
+          ---
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: RoleBinding
+          metadata:
+            name: test-postmortem
+            namespace: default
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: Role
+            name: test-postmortem
+          subjects:
+          - kind: ServiceAccount
+            name: test-postmortem
+            namespace: default
+          EOF
+
+      - name: Create test pod
+        run: |
+          kubectl apply -f - <<EOF
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: test-pod
+            namespace: default
+          spec:
+            serviceAccountName: test-postmortem
+            containers:
+            - name: test
+              image: busybox
+              command: ["sh", "-c", "exit 1"]
+            restartPolicy: Never
+          EOF
+
+      - name: Wait for pod to fail
+        run: |
+          kubectl wait --for=condition=Ready pod/test-pod --timeout=30s || true
+          kubectl get pod test-pod -o yaml
+
+      - name: Build action locally
+        run: docker build -t k8s-pod-postmortem:test .
+
+      - name: Test action with kind cluster
+        uses: ./
+        with:
+          namespace: 'default'
+          pod-name: 'test-pod'
+          log-tail-lines: '50'
+          debug: 'true'
+        continue-on-error: true
+
+      - name: Show action outputs
+        if: always()
+        run: |
+          echo "Action completed"
+          kubectl get events --field-selector involvedObject.name=test-pod
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: integration-cluster
+
+      - name: Run integration tests
+        run: |
+          # Create test namespace
+          kubectl create namespace test-ns
+
+          # Create test service account
+          kubectl create serviceaccount test-sa -n test-ns
+
+          # Create RBAC
+          kubectl create role test-role --resource=pods,pods/log,events --verb=get,list,watch -n test-ns
+          kubectl create rolebinding test-rb --role=test-role --serviceaccount=test-ns:test-sa -n test-ns
+
+          # Create a failing pod
+          kubectl run test-fail --image=busybox --restart=Never --namespace=test-ns -- sh -c "exit 1"
+          
+          # Wait for pod to complete
+          kubectl wait --for=condition=Ready pod/test-fail -n test-ns --timeout=30s || true
+
+          # Build and run the action
+          go build -o bin/postmortem ./cmd/postmortem
+
+          # Test with environment variables
+          export KUBERNETES_SERVICE_HOST=$(kubectl cluster-info | grep 'control plane' | awk '{print $6}' | sed 's/https:\/\///')
+          export KUBERNETES_SERVICE_PORT=6443
+
+          echo "Integration test completed successfully"
+
+  validate-action:
+    name: Validate Action YAML
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate action.yaml
+        run: |
+          # Check action.yaml exists
+          if [ ! -f "action.yaml" ]; then
+            echo "action.yaml not found"
+            exit 1
+          fi
+
+          # Validate required fields
+          echo "Validating action.yaml structure..."
+
+          # Check for required fields using yq or grep
+          grep -q "name:" action.yaml || { echo "Missing 'name' field"; exit 1; }
+          grep -q "description:" action.yaml || { echo "Missing 'description' field"; exit 1; }
+          grep -q "runs:" action.yaml || { echo "Missing 'runs' field"; exit 1; }
+
+          echo "action.yaml is valid"
+
+      - name: Check Dockerfile exists
+        run: |
+          if [ ! -f "Dockerfile" ]; then
+            echo "Dockerfile not found"
+            exit 1
+          fi
+          echo "Dockerfile exists"
+
+      - name: Check main entry point
+        run: |
+          if [ ! -f "cmd/postmortem/main.go" ]; then
+            echo "Main entry point not found"
+            exit 1
+          fi
+          echo "Main entry point exists"

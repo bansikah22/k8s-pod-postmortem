@@ -1,0 +1,18 @@
+apiVersion: v2
+name: k8s-pod-postmortem
+description: Kubernetes CI/CD Failure Post-Mortem Action
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+home: https://github.com/bansikah22/k8s-pod-postmortem
+sources:
+  - https://github.com/bansikah22/k8s-pod-postmortem
+keywords:
+  - kubernetes
+  - github-actions
+  - post-mortem
+  - diagnostics
+  - ci-cd
+maintainers:
+  - name: bansikah22
+    email: tandapnoelbansikah@gmail.com

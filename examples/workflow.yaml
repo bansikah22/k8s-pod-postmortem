@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run tests
+        run: go test ./...
+      
+      - name: Build
+        run: go build ./...
+
+  post-mortem:
+    runs-on: self-hosted
+    needs: build
+    if: failure() || cancelled()
+    steps:
+      - name: Kubernetes Post-Mortem
+        uses: bansikah22/k8s-pod-postmortem@v1
+        with:
+          log-tail-lines: '200'
+          include-node-info: 'true'
+          redact-secrets: 'true'
+          namespace: ''
+          pod-name: ''

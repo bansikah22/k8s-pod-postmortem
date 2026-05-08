@@ -1,0 +1,71 @@
+name: 'Kubernetes Pod Post-Mortem'
+description: 'Automatically capture and analyze Kubernetes pod failure diagnostics for CI/CD workflows'
+author: 'bansikah22'
+branding:
+  icon: 'activity'
+  color: 'blue'
+
+inputs:
+  log-tail-lines:
+    description: 'Number of log lines to tail from previous container'
+    required: false
+    default: '200'
+  include-node-info:
+    description: 'Include node information in diagnostics'
+    required: false
+    default: 'false'
+  redact-secrets:
+    description: 'Redact sensitive data from output'
+    required: false
+    default: 'true'
+  output-format:
+    description: 'Output format (markdown)'
+    required: false
+    default: 'markdown'
+  namespace:
+    description: 'Kubernetes namespace (auto-detected if empty)'
+    required: false
+    default: ''
+  pod-name:
+    description: 'Pod name (auto-detected if empty)'
+    required: false
+    default: ''
+  debug:
+    description: 'Enable debug logging'
+    required: false
+    default: 'false'
+  timeout:
+    description: 'Action timeout in seconds'
+    required: false
+    default: '10s'
+
+outputs:
+  failure-type:
+    description: 'Classification of the failure type'
+  failure-reason:
+    description: 'Reason for the failure'
+  namespace:
+    description: 'Kubernetes namespace of the pod'
+  pod-name:
+    description: 'Name of the pod'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - '--log-tail-lines'
+    - ${{ inputs.log-tail-lines }}
+    - '--include-node-info'
+    - ${{ inputs.include-node-info }}
+    - '--redact-secrets'
+    - ${{ inputs.redact-secrets }}
+    - '--output-format'
+    - ${{ inputs.output-format }}
+    - '--namespace'
+    - ${{ inputs.namespace }}
+    - '--pod-name'
+    - ${{ inputs.pod-name }}
+    - '--debug'
+    - ${{ inputs.debug }}
+    - '--timeout'
+    - ${{ inputs.timeout }}

@@ -1,0 +1,50 @@
+rbac:
+  create: true
+  nameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+image:
+  repository: ghcr.io/bansikah22/k8s-pod-postmortem
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+config:
+  logTailLines: 200
+  includeNodeInfo: false
+  redactSecrets: true
+  outputFormat: markdown
+  timeout: 10s
