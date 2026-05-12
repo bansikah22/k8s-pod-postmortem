@@ -197,7 +197,7 @@ Redaction is enabled by default. To disable:
 
 ```yaml
 # In workflow.yaml
-- uses: bansikah22/k8s-pod-postmortem@v1
+- uses: bansikah22/k8s-pod-postmortem@v0.1.0
   with:
     redact-secrets: 'false'
 ```
@@ -264,7 +264,7 @@ roleRef:
 Always keep secret redaction enabled in production:
 
 ```yaml
-- uses: bansikah22/k8s-pod-postmortem@v1
+- uses: bansikah22/k8s-pod-postmortem@v0.1.0
   with:
     redact-secrets: 'true'  # Default, but explicit is better
 ```
@@ -338,7 +338,7 @@ To add custom redaction patterns for organization-specific secrets:
 
 ```yaml
 # In your workflow
-- uses: bansikah22/k8s-pod-postmortem@v1
+- uses: bansikah22/k8s-pod-postmortem@v0.1.0
   with:
     custom-redaction-patterns: |
       MY_API_KEY=[A-Za-z0-9]{32}

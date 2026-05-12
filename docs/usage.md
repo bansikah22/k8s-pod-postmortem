@@ -31,7 +31,7 @@ jobs:
       
       - name: Post-mortem on failure
         if: failure()
-        uses: bansikah22/k8s-pod-postmortem@v1
+        uses: bansikah22/k8s-pod-postmortem@v0.1.0
 ```
 
 ### With Cancelled Jobs
@@ -41,7 +41,7 @@ Capture diagnostics for both failed and cancelled jobs:
 ```yaml
 - name: Post-mortem on failure or cancellation
   if: failure() || cancelled()
-  uses: bansikah22/k8s-pod-postmortem@v1
+  uses: bansikah22/k8s-pod-postmortem@v0.1.0
 ```
 
 ## Configuration Options
@@ -84,7 +84,7 @@ jobs:
       
       - name: Post-mortem
         if: failure()
-        uses: bansikah22/k8s-pod-postmortem@v1
+        uses: bansikah22/k8s-pod-postmortem@v0.1.0
 ```
 
 ### Full Configuration
@@ -101,7 +101,7 @@ jobs:
       
       - name: Post-mortem on failure
         if: failure()
-        uses: bansikah22/k8s-pod-postmortem@v1
+        uses: bansikah22/k8s-pod-postmortem@v0.1.0
         with:
           log-tail-lines: '500'
           include-node-info: 'true'
@@ -130,7 +130,7 @@ jobs:
       - name: Post-mortem
         if: failure()
         id: postmortem
-        uses: bansikah22/k8s-pod-postmortem@v1
+        uses: bansikah22/k8s-pod-postmortem@v0.1.0
       
       - name: Create issue on failure
         if: failure() && steps.postmortem.outputs.failure-type == 'MEMORY_EXHAUSTION'
@@ -163,7 +163,7 @@ jobs:
       - name: Post-mortem
         if: failure()
         id: postmortem
-        uses: bansikah22/k8s-pod-postmortem@v1
+        uses: bansikah22/k8s-pod-postmortem@v0.1.0
       
       - name: Notify Slack on critical failure
         if: failure() && contains('CAPACITY_SHORTAGE,NODE_FAILURE', steps.postmortem.outputs.failure-type)
@@ -191,7 +191,7 @@ For pods with multiple containers, logs from all containers are collected:
 ```yaml
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v1
+  uses: bansikah22/k8s-pod-postmortem@v0.1.0
   with:
     log-tail-lines: '100'  # Per container
 ```
@@ -203,7 +203,7 @@ Target a specific namespace:
 ```yaml
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v1
+  uses: bansikah22/k8s-pod-postmortem@v0.1.0
   with:
     namespace: 'production'
     pod-name: 'my-app-abc123-xyz'
@@ -216,7 +216,7 @@ Enable debug logging for troubleshooting:
 ```yaml
 - name: Post-mortem with debug
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v1
+  uses: bansikah22/k8s-pod-postmortem@v0.1.0
   with:
     debug: 'true'
 ```
@@ -247,7 +247,7 @@ jobs:
       
       - name: Post-mortem
         if: failure()
-        uses: bansikah22/k8s-pod-postmortem@v1
+        uses: bansikah22/k8s-pod-postmortem@v0.1.0
         with:
           log-tail-lines: '300'
 ```
@@ -265,7 +265,7 @@ jobs:
       - run: npm run lint
       - name: Post-mortem
         if: failure()
-        uses: bansikah22/k8s-pod-postmortem@v1
+        uses: bansikah22/k8s-pod-postmortem@v0.1.0
 
   test:
     runs-on: [self-hosted, kubernetes]
@@ -275,7 +275,7 @@ jobs:
       - run: npm test
       - name: Post-mortem
         if: failure()
-        uses: bansikah22/k8s-pod-postmortem@v1
+        uses: bansikah22/k8s-pod-postmortem@v0.1.0
 
   build:
     runs-on: [self-hosted, kubernetes]
@@ -285,7 +285,7 @@ jobs:
       - run: npm run build
       - name: Post-mortem
         if: failure()
-        uses: bansikah22/k8s-pod-postmortem@v1
+        uses: bansikah22/k8s-pod-postmortem@v0.1.0
 ```
 
 ### With Service Dependencies
@@ -318,7 +318,7 @@ jobs:
       
       - name: Post-mortem
         if: failure()
-        uses: bansikah22/k8s-pod-postmortem@v1
+        uses: bansikah22/k8s-pod-postmortem@v0.1.0
         with:
           include-node-info: 'true'
 ```
@@ -396,12 +396,12 @@ Let the action auto-detect namespace and pod name:
 # Good - Auto-detection
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v1
+  uses: bansikah22/k8s-pod-postmortem@v0.1.0
 
 # Avoid - Hardcoded values
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v1
+  uses: bansikah22/k8s-pod-postmortem@v0.1.0
   with:
     namespace: 'actions-runners'
     pod-name: 'runner-abc123'  # Pod name changes each run
@@ -414,7 +414,7 @@ Always keep secret redaction enabled:
 ```yaml
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v1
+  uses: bansikah22/k8s-pod-postmortem@v0.1.0
   with:
     redact-secrets: 'true'  # Default, but explicit is better
 ```
@@ -427,14 +427,14 @@ Adjust log lines based on your needs:
 # For quick diagnosis
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v1
+  uses: bansikah22/k8s-pod-postmortem@v0.1.0
   with:
     log-tail-lines: '100'
 
 # For detailed analysis
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v1
+  uses: bansikah22/k8s-pod-postmortem@v0.1.0
   with:
     log-tail-lines: '1000'
 ```
@@ -447,7 +447,7 @@ Leverage outputs for automated responses:
 - name: Post-mortem
   if: failure()
   id: postmortem
-  uses: bansikah22/k8s-pod-postmortem@v1
+  uses: bansikah22/k8s-pod-postmortem@v0.1.0
 
 - name: Auto-remediate known issues
   if: failure() && steps.postmortem.outputs.failure-type == 'CAPACITY_SHORTAGE'
@@ -463,7 +463,7 @@ Use with other diagnostic actions:
 ```yaml
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v1
+  uses: bansikah22/k8s-pod-postmortem@v0.1.0
 
 - name: Upload diagnostics
   if: failure()
