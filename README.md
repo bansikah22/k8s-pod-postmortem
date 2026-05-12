@@ -42,7 +42,7 @@ When GitHub Actions jobs run on self-hosted Kubernetes runners, runner pods are 
 ```yaml
 - name: Kubernetes Post-Mortem
   if: failure() || cancelled()
-  uses: bansikah22/k8s-pod-postmortem@v0.1.0
+  uses: bansikah22/k8s-pod-postmortem@v1
   with:
     log-tail-lines: '200'
     include-node-info: 'true'

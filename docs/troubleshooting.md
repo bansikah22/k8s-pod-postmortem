@@ -76,7 +76,7 @@ kubectl get pods -n actions-runners
 ```yaml
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v0.1.0
+  uses: bansikah22/k8s-pod-postmortem@v1
   with:
     namespace: 'actions-runners'
     pod-name: 'runner-abc123'
@@ -117,7 +117,7 @@ If you need logs from the current container, consider:
 ```yaml
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v0.1.0
+  uses: bansikah22/k8s-pod-postmortem@v1
   with:
     log-tail-lines: '500'
 ```
@@ -153,7 +153,7 @@ Increase the timeout:
 ```yaml
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v0.1.0
+  uses: bansikah22/k8s-pod-postmortem@v1
   with:
     timeout: '30s'
 ```
@@ -219,7 +219,7 @@ Specify the namespace explicitly:
 ```yaml
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v0.1.0
+  uses: bansikah22/k8s-pod-postmortem@v1
   with:
     namespace: 'actions-runners'
 ```
@@ -251,7 +251,7 @@ docker pull ghcr.io/bansikah22/k8s-pod-postmortem:v1
 ```yaml
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v0.1.0
+  uses: bansikah22/k8s-pod-postmortem@v1
 ```
 
 3. **Configure image pull secrets:**
@@ -281,7 +281,7 @@ The pod may have just started, or there are no events/logs to collect.
 ```yaml
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v0.1.0
+  uses: bansikah22/k8s-pod-postmortem@v1
   with:
     debug: 'true'
 ```
@@ -361,7 +361,7 @@ Enable debug mode for verbose output:
 ```yaml
 - name: Post-mortem with debug
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v0.1.0
+  uses: bansikah22/k8s-pod-postmortem@v1
   with:
     debug: 'true'
 ```
@@ -491,7 +491,7 @@ Very large logs may be truncated.
 ```yaml
 - name: Post-mortem
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v0.1.0
+  uses: bansikah22/k8s-pod-postmortem@v1
   with:
     include-node-info: 'true'
 ```

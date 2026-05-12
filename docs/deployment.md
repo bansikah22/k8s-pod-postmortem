@@ -176,7 +176,7 @@ jobs:
       
       - name: Post-mortem on failure
         if: failure()
-        uses: bansikah22/k8s-pod-postmortem@v0.1.0
+        uses: bansikah22/k8s-pod-postmortem@v1
 ```
 
 ## Configuration Reference
@@ -442,7 +442,7 @@ Enable debug output:
 ```yaml
 - name: Post-mortem on failure
   if: failure()
-  uses: bansikah22/k8s-pod-postmortem@v0.1.0
+  uses: bansikah22/k8s-pod-postmortem@v1
   env:
     ACTIONS_STEP_DEBUG: true
     ACTIONS_RUNNER_DEBUG: true

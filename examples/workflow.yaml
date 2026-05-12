@@ -24,7 +24,7 @@ jobs:
     if: failure() || cancelled()
     steps:
       - name: Kubernetes Post-Mortem
-        uses: bansikah22/k8s-pod-postmortem@v0.1.0
+        uses: bansikah22/k8s-pod-postmortem@v1
         with:
           log-tail-lines: '200'
           include-node-info: 'true'

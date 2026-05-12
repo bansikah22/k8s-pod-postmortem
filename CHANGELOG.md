@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-05-08
+## [1.0.0] - 2026-05-12
 
 ### Added
-- Initial release of k8s-pod-postmortem
+- Initial stable release of k8s-pod-postmortem
 - Kubernetes pod diagnostics collection for failed pods
 - Failure classification engine supporting:
   - OOMKilled pods
@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Secret redaction for sensitive data (AWS keys, GitHub tokens, passwords, etc.)
 - GitHub Actions integration with outputs for failure-type and failure-reason
 - Helm chart for Kubernetes deployment
+- Kubeconfig support for local testing with minikube/kind
 - Comprehensive documentation suite:
   - Architecture overview
   - API reference
@@ -39,5 +40,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated Go to 1.23 for security patches
 - Addressed security vulnerabilities in dependencies
 
-[Unreleased]: https://github.com/bansikah22/k8s-pod-postmortem/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/bansikah22/k8s-pod-postmortem/releases/tag/v0.1.0
+[Unreleased]: https://github.com/bansikah22/k8s-pod-postmortem/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/bansikah22/k8s-pod-postmortem/releases/tag/v1.0.0
