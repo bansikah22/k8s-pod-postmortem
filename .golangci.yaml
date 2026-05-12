@@ -20,20 +20,17 @@ linters:
     - gosec
     - gocyclo
     - dupl
+  settings:
+    gocyclo:
+      min-complexity: 15
+    dupl:
+      threshold: 100
 
-linters-settings:
-  gofmt:
-    simplify: true
-  goimports:
-    local-prefixes: github.com/kodecloud/k8s-pod-postmortem
-  gocyclo:
-    min-complexity: 15
-  dupl:
-    threshold: 100
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - dupl
-        - gosec
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/bansikah22/k8s-pod-postmortem
