@@ -13,8 +13,6 @@ linters:
     - ineffassign
     - staticcheck
     - unused
-    - gofmt
-    - goimports
     - misspell
     - revive
     - gosec
@@ -31,6 +29,8 @@ formatters:
     - gofmt
     - goimports
   settings:
+    gofmt:
+      simplify: true
     goimports:
       local-prefixes:
         - github.com/bansikah22/k8s-pod-postmortem
