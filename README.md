@@ -1,5 +1,11 @@
 # k8s-pod-postmortem
 
+[![GitHub Release](https://img.shields.io/github/v/release/bansikah22/k8s-pod-postmortem?style=flat-square&logo=github)](https://github.com/bansikah22/k8s-pod-postmortem/releases)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/bansikah22/k8s-pod-postmortem/ci.yaml?branch=master&style=flat-square&logo=githubactions&label=CI)](https://github.com/bansikah22/k8s-pod-postmortem/actions/workflows/ci.yaml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bansikah22/k8s-pod-postmortem?style=flat-square)](https://goreportcard.com/report/github.com/bansikah22/k8s-pod-postmortem)
+[![License](https://img.shields.io/github/license/bansikah22/k8s-pod-postmortem?style=flat-square)](https://github.com/bansikah22/k8s-pod-postmortem/blob/master/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/bansikah22/k8s-pod-postmortem?style=flat-square&logo=github)](https://github.com/bansikah22/k8s-pod-postmortem/stargazers)
+
 Kubernetes CI/CD Failure Post-Mortem Action - Automatically capture, preserve, analyze, and surface pod-level failure diagnostics for ephemeral GitHub Actions runners.
 
 ## Overview
