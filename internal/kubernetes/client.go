@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/bansikah22/k8s-pod-postmortem/internal/types"
 )
@@ -23,9 +25,9 @@ type Client struct {
 
 // NewClient creates a new Kubernetes client using in-cluster configuration
 func NewClient() (*Client, error) {
-	config, err := rest.InClusterConfig()
+	config, err := getKubernetesConfig()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get in-cluster config: %w", err)
+		return nil, fmt.Errorf("failed to get kubernetes config: %w", err)
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
@@ -34,6 +36,41 @@ func NewClient() (*Client, error) {
 	}
 
 	return &Client{clientset: clientset}, nil
+}
+
+// getKubernetesConfig returns Kubernetes configuration, trying in-cluster first, then kubeconfig
+func getKubernetesConfig() (*rest.Config, error) {
+	// Try in-cluster configuration first
+	config, err := rest.InClusterConfig()
+	if err == nil {
+		return config, nil
+	}
+
+	// Fall back to kubeconfig for local development
+	home := os.Getenv("HOME")
+	if home == "" {
+		home = os.Getenv("USERPROFILE") // Windows
+	}
+	if home == "" {
+		return nil, fmt.Errorf("failed to get in-cluster config: %w, and no home directory found for kubeconfig", err)
+	}
+
+	kubeconfigPath := filepath.Join(home, ".kube", "config")
+	if _, err := os.Stat(kubeconfigPath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("failed to get in-cluster config: %w, and kubeconfig not found at %s", err, kubeconfigPath)
+	}
+
+	// Use KUBECONFIG environment variable if set
+	if kubeconfigEnv := os.Getenv("KUBECONFIG"); kubeconfigEnv != "" {
+		kubeconfigPath = kubeconfigEnv
+	}
+
+	config, err = clientcmd.BuildConfigFromFlags("", kubeconfigPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build config from kubeconfig: %w", err)
+	}
+
+	return config, nil
 }
 
 // DiscoverPodInfo discovers namespace and pod name if not provided
